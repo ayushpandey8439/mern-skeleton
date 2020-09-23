@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -25,11 +26,13 @@ const userSchema = new mongoose.Schema({
     salt: String
 });
 
-userSchema.virtual('password').set((password) => {
+userSchema.virtual('password').set(function(password){
+    console.log("Received password is:::",password)
     this._password = password;
     this.salt = this.makeSalt()
+    console.log("Salt constructed is:::",this.salt)
     this.hashed_password = this.encryptPassword(password)
-}).get(() => {
+}).get(function() {
     return this._password
 })
 
@@ -38,14 +41,14 @@ userSchema.methods = {
         return this.encryptPassword(plainText) == this.hashed_password
     },
     encryptPassword: function (password) {
-        if (!password) return ''
+        if (!password) return ' '
         try {
-            return crypto.createHmac('shai', this.salt)
+            return crypto.createHmac('sha1', this.salt)
                 .update(password)
                 .digest('hex')
         } catch (err) {
-            console.info("Problem encrypting the password");
-            return ''
+            console.info("Problem encrypting the password ::",err);
+            return ' '
         }
     },
     makeSalt: function () {

@@ -3,9 +3,9 @@ import extend from 'lodash/extend';
 import errorHandler from './error.controller'
 
 const create = (req, res) => {
-    const user = new user(req.body);
+    const user = new User(req.body);
     try {
-        await user.save();
+        (async() => {await user.save()})();
         return res.status(200).json({
             message: 'User successfully signed up!!'
         })
@@ -17,8 +17,11 @@ const create = (req, res) => {
 }
 const list = (req, res) => {
     try {
-        let users = await User.find().select('name email updated created');
-        res.json(users)
+        (async() => {
+            let users =  await User.find().select('name email updated created')
+            res.json(users)
+        })();
+        
     } catch (err) {
         error: errorHandler.getErrorMessage(err)
     }
@@ -27,7 +30,7 @@ const list = (req, res) => {
 // Searches the user By Id.
 const userByID = (req, res, next, id) => {
     try {
-        let user = await User.findById(id)
+        let user = (async() => {await User.findById(id)})();
         if (!user) {
             return res.status(400).json({
                 error: 'User not found'
@@ -56,7 +59,7 @@ const update = (req, res) => {
         let user= req.profile;
         user = extend(user,req.body);
         user.updated = Date.now();
-        await user.save();
+        (async() => {await user.save()})();
         user.hashed_password = undefined
         user.salt=undefined
         res.json(user)
@@ -70,7 +73,7 @@ const remove = (req, res) => {
     try{
 
         let user = user.profile
-        let deletedUser = await user.remove()
+        let deletedUser =  (async() => {await user.remove()})();
         deletedUser.hashed_password = undefined;
         deletedUser.salt = undefined
         res.json(deletedUser)
