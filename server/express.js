@@ -7,11 +7,17 @@ import helmet from 'helmet';
 import Template from './../template';
 import authRoutes from './routes/auth.routes'
 import userRoutes from './routes/user.routes'
+import devBundle from './devBundle'; //Only from Development mode
+import path from 'path';
 
-const app= express();
+
+const app = express();
+const CURRENT_WORKING_DIR = process.cwd();
+app.use('/dist',express.static(path.join(CURRENT_WORKING_DIR,'dist')));
+devBundle.compile(app);//Only for development mode
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
-    extended:true
+    extended: true
 }));
 
 app.use(cookieParser());
@@ -19,23 +25,23 @@ app.use(compress());
 app.use(cors());
 app.use(helmet());
 
-app.get('/',(req,res)=>{
+app.get('/', (req, res) => {
     res.status(200).send(Template());
 })
 
-app.use((err,req,res,next) => {
-    if(err.name === 'UnauhorizedError'){
+app.use((err, req, res, next) => {
+    if (err.name === 'UnauhorizedError') {
         res.status('401').json({
-            "error":err.name + ": "+err.message
+            "error": err.name + ": " + err.message
         });
-    }else if( err){
+    } else if (err) {
         res.status('400').json({
-            "error":err.name + ": "+err.message
+            "error": err.name + ": " + err.message
         });
     }
 });
 
 app.use(userRoutes);
-
+app.use(authRoutes);
 
 export default app;
