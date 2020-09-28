@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, Switch } from 'react-router-dom'
 import Home from './core/Home'
-
+import Users from './user/Users';
 
 
 const MainRouter = () => {
@@ -11,6 +11,7 @@ const MainRouter = () => {
                      nested in the switch then the match would be partial too so a route for / would match
                      /contacts too. */}
             <Route exact path="/" component={Home} />
+            <Route path="/users" component={Users}/>
         </Switch>
     </div>)
 }
